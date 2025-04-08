@@ -38,6 +38,11 @@ export class GameManager {
     }
   }
 
+
+  removeGame(gameId: string) {
+    this.games = this.games.filter((g) => g.gameId !== gameId);
+  }
+
   private addHandlers(user: User) {
     user.socket.on("message", async (data) => {
       const message : message = JSON.parse(data.toString());
@@ -86,8 +91,34 @@ export class GameManager {
                 return;
             }
             socketManager.addUser(user,game.gameId);
+            await game.gameStarted(user.name);
            delete this._pendingGameId[message.payload.timerValue];
             
+        }
+    } else if(message.type===GameStatus.MOVE) {
+            const gameId = message.payload.gameId;
+            const game = this.games.find((game)=> game.gameId === gameId);
+            if(game){
+                game.makeMove(user,message.payload.move)
+                if(game.gameResult){
+                    this.removeGame(gameId);
+                }
+            }
+    } else if(message.type===GameStatus.RESIGN){
+        const gameId = message.payload.gameId;
+        const game = this.games.find((game)=> game.gameId === gameId);
+        if(!game){
+            socketManager.broadcast(gameId, 
+                JSON.stringify({
+                    type: GameStatus.GAME_ALERT,
+                    payload:{
+                        message:"The game has been ended. You have resigned."
+                    },
+                }))
+          return;
+        }
+        if(game){
+          game.resign(user);
         }
     }
     });

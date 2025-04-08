@@ -40,7 +40,7 @@ wss.on('connection',async (ws, req: IncomingMessage) => {
         id: decoded.id,
       },
       select:{
-        username:true
+        username:true,
       }
     });
 

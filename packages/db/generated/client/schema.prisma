@@ -15,4 +15,51 @@ model User {
   profilePic String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
+
+  gamesAsWhite Game[] @relation("GamesAsWhite")
+  gamesAsBlack Game[] @relation("GamesAsBlack")
+}
+
+model Game {
+  id            String      @id @default(uuid())
+  gameId        String
+  whitePlayerId String
+  blackPlayerId String
+  whitePlayer   User        @relation("GamesAsWhite", fields: [whitePlayerId], references: [id])
+  blackPlayer   User        @relation("GamesAsBlack", fields: [blackPlayerId], references: [id])
+  moves         Move[]
+  status        GameStatus
+  result        GameResult?
+  currentFen    String      @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  timeControl   TimeControl
+  startAt       DateTime    @default(now())
+}
+
+model Move {
+  id         String @id @default(uuid())
+  gameId     String
+  game       Game   @relation(fields: [gameId], references: [id])
+  move       String
+  moveNumber Int
+  timeTaken  Float
+}
+
+enum GameStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  TIME_UP
+  PLAYER_EXIT
+}
+
+enum GameResult {
+  WHITE_WINS
+  BLACK_WINS
+  DRAW
+}
+
+enum TimeControl {
+  TEN_MIN
+  FIFTEEN_MIN
+  THIRTY_MIN
 }

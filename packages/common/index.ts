@@ -16,7 +16,10 @@ export const signinSchema = z.object({
 export enum GameStatus {
     INIT_GAME = 'init_game',
     GAME_ADDED = 'game_added',
-    GAME_ALERT = 'game_alert'
+    GAME_ALERT = 'game_alert',
+    MOVE = 'move',
+    GAME_ENDED = 'game_ended',
+    RESIGN = 'resign',
 }
 
 export enum timerValue {
@@ -45,4 +48,25 @@ export type message = {
     payload:{
         message:string
     }
+} | {
+    type:GameStatus.MOVE,
+    payload:{
+        move: {
+            from: string;
+            to: string;
+        },
+        gameId: string
+    }
+} | {
+    type:GameStatus.RESIGN,
+    payload:{
+        gameId:string
+    }
+}
+
+
+export enum GameResult {
+    DRAW = 'draw',
+    WHITE_WON = 'white_won',
+    BLACK_WON = 'black_won',
 }

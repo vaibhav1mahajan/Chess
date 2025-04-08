@@ -126,6 +126,26 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.GameScalarFieldEnum = {
+  id: 'id',
+  gameId: 'gameId',
+  whitePlayerId: 'whitePlayerId',
+  blackPlayerId: 'blackPlayerId',
+  status: 'status',
+  result: 'result',
+  currentFen: 'currentFen',
+  timeControl: 'timeControl',
+  startAt: 'startAt'
+};
+
+exports.Prisma.MoveScalarFieldEnum = {
+  id: 'id',
+  gameId: 'gameId',
+  move: 'move',
+  moveNumber: 'moveNumber',
+  timeTaken: 'timeTaken'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -140,10 +160,30 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.GameStatus = exports.$Enums.GameStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  TIME_UP: 'TIME_UP',
+  PLAYER_EXIT: 'PLAYER_EXIT'
+};
 
+exports.GameResult = exports.$Enums.GameResult = {
+  WHITE_WINS: 'WHITE_WINS',
+  BLACK_WINS: 'BLACK_WINS',
+  DRAW: 'DRAW'
+};
+
+exports.TimeControl = exports.$Enums.TimeControl = {
+  TEN_MIN: 'TEN_MIN',
+  FIFTEEN_MIN: 'FIFTEEN_MIN',
+  THIRTY_MIN: 'THIRTY_MIN'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Game: 'Game',
+  Move: 'Move'
 };
 
 /**

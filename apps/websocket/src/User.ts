@@ -1,10 +1,11 @@
 import { WebSocket } from "ws";
-
+// import  {User} from '@repo/db'
 
 export class User {
      id: number;
      name:string;
      socket:WebSocket
+     
 
      constructor(id: number, name: string, ws: WebSocket) {
          this.id = id;
