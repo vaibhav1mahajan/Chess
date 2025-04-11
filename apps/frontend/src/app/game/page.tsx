@@ -8,6 +8,9 @@ const page = () => {
       <div className="flex h-full ">
         <div className="xl:w-1/2 flex flex-col xl:flex-row xl:justify-center h-full items-center  w-full"> 
             {/* <div className="w-[700px] h-[700px] bg-white"></div> */}
+          <div className=''> 
+            
+          </div>
             <ChessBoard />
         </div>
         <div className="xl:w-1/2"></div>
