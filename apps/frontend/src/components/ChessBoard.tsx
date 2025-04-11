@@ -3,7 +3,7 @@ import { GameStatus } from '@repo/common';
 import {Chess, Color, Move, PieceSymbol, Square} from 'chess.js'
 import Image from 'next/image';
 import { Dispatch, SetStateAction, useState } from 'react'
-const ChessBoard = ({colour , setColour , whitePlayerTime , blackPlayerTime , chess ,board , setBoard ,socket}:{
+const ChessBoard = ({gameId ,colour , setColour , whitePlayerTime , blackPlayerTime , chess ,board , setBoard ,socket}:{
   colour: string,
   setColour:Dispatch<SetStateAction<string>>,
   whitePlayerTime:number,
@@ -19,61 +19,78 @@ const ChessBoard = ({colour , setColour , whitePlayerTime , blackPlayerTime , ch
     type: PieceSymbol;
     color: Color;
 } | null)[][]>>,
-socket : WebSocket
+socket : WebSocket,
+gameId : string
 }) => {
     const [from,setFrom] = useState<string | null>(null);
     const [to,setTo] = useState<string | null >(null);
     const [moves,setMoves] = useState<Move[] | []>([]);
     
-    console.log(chess),
-    console.log(board)
+    
   return (
     <div className='mt-10'>
       {(colour==='b' || colour==='black' ? board.slice().reverse() : board).map((row, i) => {
+        i = colour==='b' || colour==='black' ? i+1 : 8-i;
         return (
             <div key={i} className="flex items-center justify-center h-[40px] sm:h-[70px] xl:h-[90px] ">
-              {row.map((square, j) => {
-                const piece = board[i][j] || null;
+              {(colour==='b' || colour==='black'?row.slice().reverse():row).map((square, j) => {
+                j = colour==='b' || colour==='black' ? 7 -  (j % 8) :   (j % 8);
+               
                 return (
                   <div
                     onClick={()=>{
-                        if(!from &&!to || piece?.color === chess.turn()){
-                            let newFrom = `${String.fromCharCode(j + 97)}${8-i}`;
+                      if(colour.charAt(0)!=chess.turn().charAt(0)) {
+                        console.log('returning because not allowed to move');
+                        return;
+                      };
+                      
+                      if(square && square.color=== chess.turn() && from){
+                        let newFrom = `${String.fromCharCode(j + 97)}${i}`;
                 
                             setFrom(newFrom);
-                             console.log('new from ',newFrom);
-                             const moves = chess.moves({square:newFrom as Square , verbose:true})
-                             console.log(moves);
+                        
+                             const moves = chess.moves({square:newFrom as Square , verbose:true,},)
+                              console.log('from',from)
                              setMoves(moves);
                              setTo(null);
-                        } else if(from &&!to){
-                            let newTo = `${String.fromCharCode(j + 97)}${8-i}`;
+                      } else if(!from){
+                          let newFrom = `${String.fromCharCode(j + 97)}${i}`;
+                
+                            setFrom(newFrom);
+                        
+                             const moves = chess.moves({square:newFrom as Square , verbose:true,},)
+                              console.log('from',from)
+                             setMoves(moves);
+                             setTo(null);
+                        } else if(from && !to){
+                          let newTo = `${String.fromCharCode(j + 97)}${i}`;;
                             setTo(newTo);
-                            console.log('new to',newTo);
+                            console.log('newTO',newTo)
                             try {
                                 chess.move({from: from, to: newTo});
                             } catch (error) {
                                 console.error('Invalid move', error);
                             }
-                              
+                            console.log(newTo) 
                             socket.send(JSON.stringify({
                               type:GameStatus.MOVE,
                               payload:{
-                                
+                                gameId,
+                                move : { from: from , to : newTo}
                               }
                             }))
                             
                             setFrom(null);
                             setTo(null);
-                            console.log('after move')
+              
                             setBoard(chess.board());
                         } 
                     }}
                     key={j}
                     className={`flex justify-center items-center  p-0 h-[40px] w-[40px] sm:w-[70px] sm:h-[70px] xl:h-[90px] xl:w-[90px] border-2 border-gray-400 ${(i+j)%2 !== 0? 'bg-blue-400' : 'bg-gray-50'} cursor="pointer" relative`}
                   >
-                    <div className={`absolute ${checkPossibleMove(moves,`${String.fromCharCode(j + 97)}${8-i}` as Square,from) === true ? 'block' : 'hidden'} w-5 h-5 rounded-full bg-green-300 block z-50`}></div>
-                   {square && <Image src={`/Chess_pieces/${piece?.color.toUpperCase()}${piece?.type.toUpperCase()}.png`} alt={`${piece?.type.toString()}`} height={35} width={35} className='h-5 w-5 sm:h-10 sm:w-10 xl:w-12 xl:h-12' />}
+                    <div className={`absolute ${checkPossibleMove(moves,`${String.fromCharCode(j + 97)}${i}` as Square,from) === true ? 'block' : 'hidden'} w-5 h-5 rounded-full bg-green-300 block z-50`}></div>
+                   {square && <Image src={`/Chess_pieces/${square.color.toUpperCase()}${square?.type.toString().toUpperCase()}.png`} alt={`${square?.type.toString()}`} height={35} width={35} className='h-5 w-5 sm:h-10 sm:w-10 xl:w-12 xl:h-12' />}
                   </div>
                 )
               })}
@@ -99,3 +116,5 @@ function checkPossibleMove (moves: Move[] | [], square : Square, from :string | 
 }
 
 export default ChessBoard
+
+

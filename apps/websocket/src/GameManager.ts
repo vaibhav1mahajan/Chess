@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { socketManager, User } from "./User";
 import { GameStatus, timerValue, type message } from "@repo/common";
 import { Game } from "./Game";
-
+import redis from "./redisClient";
 let ID = 1;
 
 export class GameManager {
@@ -99,13 +99,15 @@ export class GameManager {
             
         }
     } else if(message.type===GameStatus.MOVE) {
-            const gameId = message.payload.gameId;
+            const {gameId , move} = message.payload;
             const game = this.games.find((game)=> game.gameId === gameId);
-            if(game){
-                game.makeMove(user,message.payload.move)
-                if(game.gameResult){
-                    this.removeGame(gameId);
-                }
+            if (game) {
+              redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
+              game.makeMove(user, move);
+              if (game.gameResult) {
+                await game.flushMovesToDB();
+                this.removeGame(gameId);
+              }
             }
     } else if(message.type===GameStatus.RESIGN){
         const gameId = message.payload.gameId;
@@ -118,10 +120,12 @@ export class GameManager {
                         message:"The game has been ended. You have resigned."
                     },
                 }))
+                
           return;
         }
         if(game){
           game.resign(user);
+          this.removeGame(gameId);
         }
     }
     });

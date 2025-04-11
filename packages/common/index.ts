@@ -20,6 +20,8 @@ export enum GameStatus {
     MOVE = 'move',
     GAME_ENDED = 'game_ended',
     RESIGN = 'resign',
+    TIME_UP = 'time_up',
+    REMOVE_IS_PENDING = 'remove_is_pending_user'
 }
 
 export enum timerValue {

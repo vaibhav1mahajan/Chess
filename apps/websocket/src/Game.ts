@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@repo/db";
 import { socketManager, User } from "./User";
 import { PauseableTimeout } from "./PauseableTimeout";
+import redis from "./redisClient";
 
 export class Game {
   gameId: string;
@@ -73,6 +74,7 @@ export class Game {
         },
       })
     );
+    console.log("game has started");
   }
   public makeMove(
     user: User,
@@ -92,17 +94,29 @@ export class Game {
       return;
     }
     if (this.board.turn() === "w" && user.name === this.usernameOfPlayer1) {
-      if(this.timeUp(this.usernameOfPlayer1)){
-        return ;
+      if (this.timeUp(this.usernameOfPlayer1)) {
+        return;
       }
-      
-      this.board.move(move);
+      try {
+        this.board.move(move);
+      } catch (error) {
+        socketManager.broadcast(
+          this.gameId,
+          JSON.stringify({
+            type: GameStatus.GAME_ALERT,
+            payload: {
+              move: "Invalid Move",
+            },
+          })
+        );
+        return;
+      }
       this.timerPlayer1?.pause();
       this.timerPlayer2?.resume();
     }
 
     if (this.board.turn() === "b" && user.name === this.usernameOfPlayer2) {
-      if (this.board.moveNumber() === 2) {
+      if (this.board.moveNumber() === 1) {
         const setTimoutValue =
           this.timerValue === timerValue.TEN_MIN
             ? 1000 * 60 * 10
@@ -112,89 +126,140 @@ export class Game {
 
         this.timerPlayer2 = new PauseableTimeout(() => {}, setTimoutValue);
       }
-      if(this.timeUp(this.usernameOfPlayer2)){
-        return ;
+      if (this.timeUp(this.usernameOfPlayer2)) {
+        return;
       }
-      this.board.move(move);
+      try {
+        this.board.move(move);
+      } catch (error) {
+        socketManager.broadcast(
+          this.gameId,
+          JSON.stringify({
+            type: GameStatus.GAME_ALERT,
+            payload: {
+              move: "Invalid Move",
+            },
+          })
+        );
+        return;
+      }
       this.timerPlayer2?.pause();
       this.timerPlayer1?.resume();
     }
     socketManager.broadcast(
+      this.gameId,
+      JSON.stringify({
+        type: GameStatus.MOVE,
+        payload: {
+          move,
+          remaingTime: {
+            player1: this.timerPlayer1?.remainingTime,
+            player2: this.timerPlayer2?.remainingTime,
+          },
+        },
+      })
+    );
+    if (this.board.isGameOver()) {
+      const result = this.board.isDraw()
+        ? GameResult.DRAW
+        : this.board.turn() === "b"
+          ? GameResult.WHITE_WON
+          : GameResult.BLACK_WON;
+
+      socketManager.broadcast(
         this.gameId,
         JSON.stringify({
-          type: GameStatus.MOVE,
+          type: GameStatus.GAME_ENDED,
           payload: {
-            move,
-            remaingTime: {
-              player1: this.timerPlayer1?.remainingTime,
-              player2: this.timerPlayer2?.remainingTime,
-            },
+            gameId: this.gameId,
+            result,
           },
         })
       );
-      if (this.board.isGameOver()) {
-        const result = this.board.isDraw()
-        ? GameResult.DRAW
-        : this.board.turn() === 'b'
-          ? GameResult.WHITE_WON
-          : GameResult.BLACK_WON;
-          
-          socketManager.broadcast(this.gameId, JSON.stringify({
-            type: GameStatus.GAME_ENDED,
-            payload: {
-              gameId: this.gameId,
-              result,
-            },
-          }))
-        
-      }
+    }
+    console.log("moved");
   }
 
   public resign(user: User) {
-    if(user.name !== this.usernameOfPlayer1 && user.name!== this.usernameOfPlayer2){
+    if (
+      user.name !== this.usernameOfPlayer1 &&
+      user.name !== this.usernameOfPlayer2
+    ) {
       return;
     }
-    const result = user.name === this.usernameOfPlayer1? GameResult.BLACK_WON : GameResult.WHITE_WON;
-    
-    this.gameEnded(result,{
-      remainTime:{  
+    const result =
+      user.name === this.usernameOfPlayer1
+        ? GameResult.BLACK_WON
+        : GameResult.WHITE_WON;
+
+    this.gameEnded(result, {
+      remainTime: {
         player1: this.timerPlayer1?.remainingTime,
         player2: this.timerPlayer2?.remainingTime,
-      }
-    })
+      },
+    });
     this.timerPlayer1?.cancel();
     this.timerPlayer2?.cancel();
   }
-  private timeUp(playerName : string){
-        if(playerName === this.usernameOfPlayer1){
-          if(this.timerPlayer1?.remainingTime === 0 || this.timerPlayer1?.remainingTime === undefined || this.timerPlayer1.remainingTime === null){
-            this.gameEnded(GameResult.BLACK_WON,{
-              message: 'Time is up for white player'
-            })
-            return true;
-          }
-
-        } else if(playerName === this.usernameOfPlayer2) {
-          if(this.timerPlayer2?.remainingTime === 0 || this.timerPlayer2?.remainingTime === undefined || this.timerPlayer2.remainingTime === null){
-            this.gameEnded(GameResult.WHITE_WON, {
-              message: 'Time is up for black player'
-            })
-            return true;
-          }
-        }
-        return false;
-
+  private timeUp(playerName: string) {
+    if (playerName === this.usernameOfPlayer1) {
+      if (
+        this.timerPlayer1?.remainingTime === 0 ||
+        this.timerPlayer1?.remainingTime === undefined ||
+        this.timerPlayer1.remainingTime === null
+      ) {
+        this.gameEnded(GameResult.BLACK_WON, {
+          message: "Time is up for white player",
+        });
+        return true;
+      }
+    } else if (playerName === this.usernameOfPlayer2) {
+      if (
+        this.timerPlayer2?.remainingTime === 0 ||
+        this.timerPlayer2?.remainingTime === undefined ||
+        this.timerPlayer2.remainingTime === null
+      ) {
+        this.gameEnded(GameResult.WHITE_WON, {
+          message: "Time is up for black player",
+        });
+        return true;
+      }
+    }
+    return false;
   }
 
   private gameEnded(result: GameResult, message?: Object) {
-      socketManager.broadcast(this.gameId, JSON.stringify({
+    socketManager.broadcast(
+      this.gameId,
+      JSON.stringify({
         type: GameStatus.GAME_ENDED,
         payload: {
           gameId: this.gameId,
           result,
-         ...message,
+          ...message,
         },
-      }))
+      })
+    );
   }
+  async flushMovesToDB() {
+    const moves = await redis.lrange(`game:${this.gameId}:moves`, 0, -1);
+    if (moves.length === 0) return;
 
+    try {
+      for (const move of moves) {
+        await prisma.move.create({
+          data: {
+            gameId: this.gameId,
+            move: move,
+            moveNumber: this.board.moveNumber(),
+            timeTaken: 1, // assuming a stringified object
+          },
+        });
+      }
+      console.log(`✅ Flushed ${moves.length} moves to DB`);
+      await redis.del(`game:${this.gameId}:moves`);
+    } catch (err) {
+      console.error("❌ Failed to flush moves:", err);
+    }
+  }
 }

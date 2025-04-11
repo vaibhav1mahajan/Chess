@@ -22,16 +22,18 @@ const page = () => {
   const [chess, ] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
   const [startingTime,setStartingTime] = useState<timerValue>(timerValue.TEN_MIN);
-  const [colour,setColour] = useState('')
+  const [colour,setColour] = useState('w')
   const [username,setUsername] = useState<string | undefined>(Cookies.get('username'));
   const [fen,setFen] = useState<string>('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   const [moves,setMoves] = useState<Move[] | []>([]);
   const [whitePlayerTime,setWhitePlayerTime] = useState<number>(10*60*1000)
   const [blackPlayerTime,setBlackPlayerTime] = useState<number>(10*60*1000)
   const [result,setResult] = useState<GameResult | undefined>();
+  const [gameId,setGameId] = useState('');
+  const [gameStarted,setIsGameStarted] = useState(false);
 
 
-  console.log(username);
+  
 
   useEffect(()=>{
     if(!socket) return;
@@ -43,6 +45,8 @@ const page = () => {
           setColour(whitePlayer === username ? 'w' : 'b')
           setStartingTime(timerValue as timerValue) 
           setMoves(move);
+          setGameId(gameId);
+          setIsGameStarted(true);
       } else if(message.type === GameStatus.MOVE){
           const {move , remaingTime} = message.payload;
           chess.move(move);
@@ -50,6 +54,7 @@ const page = () => {
           setMoves((moves)=>[...moves,move]);
           setBlackPlayerTime(remaingTime.player2);
           setWhitePlayerTime(remaingTime.player1);
+          console.log(move)
 
       } else if(message.type === GameStatus.GAME_ENDED){
         const payload = message.payload;
@@ -76,7 +81,7 @@ const page = () => {
           <div className=''> 
             
           </div>
-            <ChessBoard socket={socket} chess={chess} board = {board} setBoard={setBoard} colour = {colour} setColour={setColour} whitePlayerTime = {whitePlayerTime} blackPlayerTime={blackPlayerTime}/>
+            <ChessBoard gameId = {gameId} socket={socket} chess={chess} board = {board} setBoard={setBoard} colour = {colour} setColour={setColour} whitePlayerTime = {whitePlayerTime} blackPlayerTime={blackPlayerTime}/>
         </div>
         <div className="xl:w-1/2 flex gap-4 justify-center items-center">
         <DropdownMenu>
@@ -89,14 +94,17 @@ const page = () => {
   </DropdownMenuContent>
 </DropdownMenu>
 
-          <Button onClick={()=> {
+          {!gameStarted && <Button onClick={()=> {
             socket.send(JSON.stringify({
               type:GameStatus.INIT_GAME,
               payload:{
                 timerValue
               }
             }))
-          }}>Start a Game</Button>
+          }}>Start a Game</Button>}
+          {gameStarted && <div>Game has begun, you are {colour} player</div>}
+
+
         </div>
       </div>
 
@@ -107,3 +115,4 @@ const page = () => {
 }
 
 export default page
+
