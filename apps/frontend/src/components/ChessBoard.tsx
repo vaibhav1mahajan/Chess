@@ -1,18 +1,35 @@
 'use client'
-import {Chess, Move, Square} from 'chess.js'
+import { GameStatus } from '@repo/common';
+import {Chess, Color, Move, PieceSymbol, Square} from 'chess.js'
 import Image from 'next/image';
-import { useState } from 'react'
-const ChessBoard = () => {
-    const [chess,setChess] = useState(new Chess());
-    const [board,setBoard] = useState(chess.board());
+import { Dispatch, SetStateAction, useState } from 'react'
+const ChessBoard = ({colour , setColour , whitePlayerTime , blackPlayerTime , chess ,board , setBoard ,socket}:{
+  colour: string,
+  setColour:Dispatch<SetStateAction<string>>,
+  whitePlayerTime:number,
+  blackPlayerTime:number,
+  chess:Chess,
+  board:  ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+} | null)[][],
+  setBoard:Dispatch<SetStateAction<({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+} | null)[][]>>,
+socket : WebSocket
+}) => {
     const [from,setFrom] = useState<string | null>(null);
     const [to,setTo] = useState<string | null >(null);
     const [moves,setMoves] = useState<Move[] | []>([]);
+    
     console.log(chess),
     console.log(board)
   return (
     <div className='mt-10'>
-      {board.map((row, i) => {
+      {(colour==='b' || colour==='black' ? board.slice().reverse() : board).map((row, i) => {
         return (
             <div key={i} className="flex items-center justify-center h-[40px] sm:h-[70px] xl:h-[90px] ">
               {row.map((square, j) => {
@@ -38,6 +55,13 @@ const ChessBoard = () => {
                             } catch (error) {
                                 console.error('Invalid move', error);
                             }
+                              
+                            socket.send(JSON.stringify({
+                              type:GameStatus.MOVE,
+                              payload:{
+                                
+                              }
+                            }))
                             
                             setFrom(null);
                             setTo(null);

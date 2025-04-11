@@ -31,11 +31,12 @@ export class GameManager {
   }
 
   removeUser(id: number) {
-    const index = this._users.findIndex((user) => user.id === id);
+    if(this._users.length===0) return;
+    const index = this._users.findIndex((user) => user?.id === id);
     if (index !== -1) {
-      delete this._users[index];
+      this._users.splice(index, 1); // removes the element at 'index'
       console.log(`User with id ${id} has left the websocket server!`);
-    }
+    }    
   }
 
 
@@ -62,6 +63,7 @@ export class GameManager {
                     }
                 })
             );
+            console.log('event recieved')
         } else {
             const game = this.games.find((game)=> game.gameId === this._pendingGameId[message.payload.timerValue]);
             if(!game){
@@ -88,6 +90,7 @@ export class GameManager {
                         },
                     })
                 );
+                console.log('you are already in a game')
                 return;
             }
             socketManager.addUser(user,game.gameId);

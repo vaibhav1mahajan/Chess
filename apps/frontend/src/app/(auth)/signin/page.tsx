@@ -26,6 +26,11 @@ const page = () => {
         sameSite: "Lax",
       });
 
+      Cookies.set('username',username,{
+        expires:7,
+        sameSite:"Lax"
+      })
+
       router.push('/game');
 
       console.log("Token saved in cookie:", token);
