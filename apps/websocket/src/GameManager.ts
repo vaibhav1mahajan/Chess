@@ -101,14 +101,6 @@ export class GameManager {
     } else if(message.type===GameStatus.MOVE) {
             const {gameId , move} = message.payload;
             const game = this.games.find((game)=> game.gameId === gameId);
-            // if (game) {
-            //   redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
-            //   game.makeMove(user, move);
-            //   if (game.gameResult) {
-            //     await game.flushMovesToDB();
-            //     this.removeGame(gameId);
-            //   }
-            // }
             if(game){
               game.makeMove(user,move);
               if(game.gameResult){

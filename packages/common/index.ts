@@ -21,7 +21,8 @@ export enum GameStatus {
     GAME_ENDED = 'game_ended',
     RESIGN = 'resign',
     TIME_UP = 'time_up',
-    REMOVE_IS_PENDING = 'remove_is_pending_user'
+    REMOVE_IS_PENDING = 'remove_is_pending_user',
+    RESTORE_GAME='restore_game'
 }
 
 export enum timerValue {

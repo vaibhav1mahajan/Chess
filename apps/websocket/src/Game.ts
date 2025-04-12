@@ -1,10 +1,10 @@
 import { GameResult, GameStatus, timerValue } from "@repo/common";
-import { Chess } from "chess.js";
+import { Chess, Move } from "chess.js";
 import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@repo/db";
 import { socketManager, User } from "./User";
 import { PauseableTimeout } from "./PauseableTimeout";
-// import redis from "./redisClient";
+import redis from "./redisClient";
 
 export class Game {
   gameId: string;
@@ -76,7 +76,7 @@ export class Game {
     );
     console.log("game has started");
   }
-  public makeMove(
+  public async makeMove(
     user: User,
     move: {
       from: string;
@@ -146,6 +146,15 @@ export class Game {
       this.timerPlayer2?.pause();
       this.timerPlayer1?.resume();
     }
+    await redis.rpush(
+      `game:${this.gameId}:moves`,
+      JSON.stringify({
+        move,
+        fen: this.board.fen(),
+        timestamp: Date.now(),
+        player: user.name,
+      })
+    );
     socketManager.broadcast(
       this.gameId,
       JSON.stringify({
@@ -261,4 +270,6 @@ export class Game {
   //     console.error("❌ Failed to flush moves:", err);
   //   }
   // }
+
+  
 }
