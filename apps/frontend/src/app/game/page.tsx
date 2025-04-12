@@ -112,7 +112,7 @@ const Page = () => {
   return (
     <div className="h-screen w-screen bg-zinc-800">
       <div className="container mx-auto h-full">
-        <div className="flex h-full">
+        <div className="flex xl:h-full flex-col gap-4 xl:flex-row">
           {/* Chess Board and Timers */}
           <div className="xl:w-1/2 flex flex-col xl:flex-row xl:justify-center h-full items-center w-full">
             <div className="flex flex-col gap-2 mt-10">
@@ -135,6 +135,7 @@ const Page = () => {
                 setColour={setColour}
                 whitePlayerTime={whitePlayerTime}
                 blackPlayerTime={blackPlayerTime}
+                gameStarted = {gameStarted}
               />
 
               {/* Your Timer */}
@@ -148,11 +149,11 @@ const Page = () => {
           </div>
 
           {/* Controls */}
-          <div className="xl:w-1/2 flex flex-col gap-4 justify-center items-center">
+          <div className="xl:w-1/2 flex flex-col gap-4 justify-center items-center ">
             <div className="flex gap-3">
-              <Button onClick={() => setStartingTime(timerValue.TEN_MIN)}>10min</Button>
-              <Button onClick={() => setStartingTime(timerValue.FIFTEEN_MIN)}>15min</Button>
-              <Button onClick={() => setStartingTime(timerValue.THIRTY_MIN)}>30min</Button>
+              <Button onClick={() => setStartingTime(timerValue.TEN_MIN)} className={` border-4  ${startingTime === timerValue.TEN_MIN && 'border-green-500'}`}>10min</Button>
+              <Button onClick={() => setStartingTime(timerValue.FIFTEEN_MIN)} className={` border-4  ${startingTime === timerValue.FIFTEEN_MIN && 'border-green-500'}`}>15min</Button>
+              <Button onClick={() => setStartingTime(timerValue.THIRTY_MIN)} className={` border-4  ${startingTime === timerValue.THIRTY_MIN && 'border-green-500'}`}>30min</Button>
             </div>
 
             {!gameStarted && (

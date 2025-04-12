@@ -2,7 +2,7 @@
 import { GameStatus } from "@repo/common";
 import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 const ChessBoard = ({
   gameId,
   colour,
@@ -13,6 +13,7 @@ const ChessBoard = ({
   board,
   setBoard,
   socket,
+  gameStarted
 }: {
   colour: string;
   setColour: Dispatch<SetStateAction<"w" | "b">>;
@@ -35,10 +36,39 @@ const ChessBoard = ({
   >;
   socket: WebSocket;
   gameId: string;
+  gameStarted:boolean;
 }) => {
   const [from, setFrom] = useState<string | null>(null);
   const [to, setTo] = useState<string | null>(null);
   const [moves, setMoves] = useState<Move[] | []>([]);
+
+  const [isPremoved,setIsPremoved] = useState(false);
+  const [premoveFrom,setIspremoveFrom] = useState<string | null>(null);
+  const [premoveTo,setIspremoveTo] = useState<string | null>(null);
+
+  useEffect(()=>{
+    if(!isPremoved) return;
+    if(!premoveFrom || !premoveTo) return
+    try {
+      chess.move({from:premoveFrom,to:premoveTo})
+      socket.send(
+        JSON.stringify({
+          type: GameStatus.MOVE,
+          payload: {
+            gameId,
+            move: { from: premoveFrom, to: premoveTo },
+          },
+        })
+      );
+
+      setBoard(chess.board());
+      setFrom(null);
+      setTo(null);
+    } catch (error) {
+      console.log('Invalid move',error)
+    }
+  }, [board])
+
 
   return (
     <div className="">
@@ -66,6 +96,7 @@ const ChessBoard = ({
                   onDrop={(e) => {
                     const fromSquare = e.dataTransfer.getData("fromSquare");
                     const toSquare = `${String.fromCharCode(j + 97)}${i}`;
+                    if(!gameStarted) return;
 
                     if (fromSquare && toSquare) {
                       try {
@@ -90,6 +121,8 @@ const ChessBoard = ({
                     }
                   }}
                   onClick={() => {
+                    if(!gameStarted) return;
+                    
                     if (colour.charAt(0) != chess.turn().charAt(0)) {
                       console.log("returning because not allowed to move");
                       return;

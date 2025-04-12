@@ -3,6 +3,7 @@ import { LockOpen, User2Icon } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import axios from 'axios'
+import { toast } from 'sonner'
 
 const page = () => {
   const [username, setUsername] = useState("")
@@ -11,8 +12,10 @@ const page = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
       try {
         const response  = await axios.post('http://localhost:3030/api/auth/signup', { username, password })
+        toast.success('sign up success')
         console.log(response.data)
       } catch (error ) {
+        toast.error('error while signing up');
         console.log(error)
       } 
   }

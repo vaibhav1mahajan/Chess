@@ -5,6 +5,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner"
+
 
 const page = () => {
   const router = useRouter();
@@ -20,6 +22,10 @@ const page = () => {
       );
       const token = response.data.token;
 
+      if(!token){
+        toast.error('error while signing in')
+      }
+
       // Save token in cookie (client-side)
       Cookies.set("jwt", token, {
         expires: 7,
@@ -30,11 +36,12 @@ const page = () => {
         expires:7,
         sameSite:"Lax"
       })
-
+      toast.success('sign in success')
       router.push('/game');
 
       console.log("Token saved in cookie:", token);
     } catch (error) {
+      toast.error('error while signing in')
       console.log(error);
     }
   };
