@@ -168,7 +168,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/vaibhav/Drive/projects/chess_app/packages/db/generated/client",
+      "value": "D:\\Coding\\projects\\chess\\chess\\packages\\db\\generated\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -177,12 +177,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/vaibhav/Drive/projects/chess_app/packages/db/prisma/schema.prisma",
+    "sourceFilePath": "D:\\Coding\\projects\\chess\\chess\\packages\\db\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

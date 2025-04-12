@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "@prisma/client": "^6.5.0",
+    "bun": "^1.2.9",
     "prisma": "^6.5.0"
   }
 }

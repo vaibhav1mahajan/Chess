@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { socketManager, User } from "./User";
 import { GameStatus, timerValue, type message } from "@repo/common";
 import { Game } from "./Game";
-import redis from "./redisClient";
+// import redis from "./redisClient";
 let ID = 1;
 
 export class GameManager {
@@ -102,10 +102,10 @@ export class GameManager {
             const {gameId , move} = message.payload;
             const game = this.games.find((game)=> game.gameId === gameId);
             if (game) {
-              redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
+              // redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
               game.makeMove(user, move);
               if (game.gameResult) {
-                await game.flushMovesToDB();
+                // await game.flushMovesToDB();
                 this.removeGame(gameId);
               }
             }

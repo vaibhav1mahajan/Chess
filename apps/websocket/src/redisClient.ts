@@ -1,5 +1,5 @@
-import Redis from 'ioredis';
+// import Redis from 'ioredis';
 
-const redis = new Redis(); // optionally pass config options
+// const redis = new Redis(); // optionally pass config options
 
-export default redis;
+// export default redis;
