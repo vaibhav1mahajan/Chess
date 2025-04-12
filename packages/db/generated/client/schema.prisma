@@ -38,7 +38,7 @@ model Game {
 model Move {
   id         String @id @default(uuid())
   gameId     String
-  game       Game   @relation(fields: [gameId], references: [id])
+  game       Game   @relation(fields: [gameId], references: [gameId])
   move       String
   moveNumber Int
   timeTaken  Float

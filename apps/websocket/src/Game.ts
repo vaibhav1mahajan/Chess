@@ -54,12 +54,15 @@ export class Game {
     }
     const setTimoutValue =
       this.timerValue === timerValue.TEN_MIN
-        ?  60 * 10
+        ? 1000* 60 * 10
         : this.timerValue === timerValue.FIFTEEN_MIN
-          ? 60 * 15
-          : 60 * 30;
+          ?1000* 60 * 15
+          :1000* 60 * 30;
 
-    this.timerPlayer1 = new PauseableTimeout(() => {}, setTimoutValue);
+          this.timerPlayer1 = new PauseableTimeout(
+            this.handleTimeout.bind(this, this.usernameOfPlayer1),
+            setTimoutValue
+          );
     const toBeBrodcasted :messageSentByServer = {
         type:GameStatus.INIT_GAME,
         payload:{
@@ -108,21 +111,25 @@ export class Game {
         socketManager.broadcast(this.gameId,JSON.stringify(toBeBrodcasted));
         return;
       }
+      if (this.board.moveNumber() === 1) {
+        const setTimoutValue =
+          this.timerValue === timerValue.TEN_MIN
+            ? 1000* 60 * 10
+            : this.timerValue === timerValue.FIFTEEN_MIN
+              ?1000*  60 * 15
+              : 1000* 60 * 30;
+
+              this.timerPlayer2 = new PauseableTimeout(
+                this.handleTimeout.bind(this, this.usernameOfPlayer2!),
+                setTimoutValue
+              );
+      }
       this.timerPlayer1?.pause();
       this.timerPlayer2?.resume();
     }
 
     if (this.board.turn() === "b" && user.name === this.usernameOfPlayer2) {
-      if (this.board.moveNumber() === 1) {
-        const setTimoutValue =
-          this.timerValue === timerValue.TEN_MIN
-            ?  60 * 10
-            : this.timerValue === timerValue.FIFTEEN_MIN
-              ?  60 * 15
-              :  60 * 30;
-
-        this.timerPlayer2 = new PauseableTimeout(() => {}, setTimoutValue);
-      }
+      
       if (await this.timeUp(this.usernameOfPlayer2)) {
         return;
       }
@@ -156,8 +163,8 @@ export class Game {
         payload: {
           move,
           remaingTime: {
-            player1: this.timerPlayer1?.remainingTime,
-            player2: this.timerPlayer2?.remainingTime,
+            player1: this.timerPlayer1?.remainingTime ? Math.floor(this.timerPlayer1.remainingTime/1000) : 600,
+            player2: this.timerPlayer2?.remainingTime ? Math.floor(this.timerPlayer2.remainingTime/1000) : 600,
           },
         },
     }
@@ -199,10 +206,10 @@ export class Game {
         : GameResult.WHITE_WON;
 
     await this.gameEnded(result, {
-      remainTime: {
-        player1: this.timerPlayer1?.remainingTime,
-        player2: this.timerPlayer2?.remainingTime,
-      },
+      remaingTime: {
+        player1: this.timerPlayer1?.remainingTime ? this.timerPlayer1.remainingTime/1000 : undefined,
+        player2: this.timerPlayer2?.remainingTime ? this.timerPlayer2.remainingTime/1000 : undefined,
+      }
     });
     this.timerPlayer1?.cancel();
     this.timerPlayer2?.cancel();
@@ -260,7 +267,7 @@ export class Game {
         const parsed = JSON.parse(moveStr);
         await prisma.move.create({
           data: {
-            gameId: this.gameId,
+            gameId:this.gameId ,
             move: JSON.stringify(parsed.move),
             moveNumber: moveNumber++,
             timeTaken:1
@@ -272,6 +279,13 @@ export class Game {
       await redis.del(key);
     } catch (err) {
       console.error("❌ Failed to flush moves to DB:", err);
+    }
+  }
+  private async handleTimeout(playerName: string) {
+    if (playerName === this.usernameOfPlayer1) {
+      await this.gameEnded(GameResult.BLACK_WON, { message: "White ran out of time" });
+    } else {
+      await this.gameEnded(GameResult.WHITE_WON, { message: "Black ran out of time" });
     }
   }
   

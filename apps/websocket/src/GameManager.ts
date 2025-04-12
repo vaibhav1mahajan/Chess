@@ -187,8 +187,8 @@ export class GameManager {
               currentFen: game.board.fen(),
               color,
               remainingTime: {
-                player1: game.timerPlayer1?.remainingTime || 600,
-                player2: game.timerPlayer2?.remainingTime || 600,
+                player1: game.timerPlayer1?.remainingTime ? Math.floor(game.timerPlayer1.remainingTime/1000) : 600,
+                player2: game.timerPlayer2?.remainingTime ? Math.floor(game.timerPlayer2.remainingTime/1000): 600,
               },
               moves:game.moves
             }
