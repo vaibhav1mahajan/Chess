@@ -179,15 +179,6 @@ export class Game {
         : this.board.turn() === "b"
           ? GameResult.WHITE_WON
           : GameResult.BLACK_WON;
-
-          const response = await prisma.game.update({
-            where:{
-              gameId:this.gameId
-            },
-            data:{
-              result:result === GameResult.DRAW ? 'DRAW' : result === GameResult.BLACK_WON ? 'BLACK_WINS' : 'WHITE_WINS'
-            }
-          })
           this.gameEnded(result)
      
     }
@@ -206,10 +197,7 @@ export class Game {
         : GameResult.WHITE_WON;
 
     await this.gameEnded(result, {
-      remaingTime: {
-        player1: this.timerPlayer1?.remainingTime ? this.timerPlayer1.remainingTime/1000 : undefined,
-        player2: this.timerPlayer2?.remainingTime ? this.timerPlayer2.remainingTime/1000 : undefined,
-      }
+      message:result === GameResult.BLACK_WON ? 'White has resigned' : 'Black has resigned'
     });
     this.timerPlayer1?.cancel();
     this.timerPlayer2?.cancel();
@@ -242,6 +230,14 @@ export class Game {
   }
 
   private async gameEnded(result: GameResult, message?: Object) {
+    const response = await prisma.game.update({
+      where:{
+        gameId:this.gameId
+      },
+      data:{
+        result:result === GameResult.DRAW ? 'DRAW' : result === GameResult.BLACK_WON ? 'BLACK_WINS' : 'WHITE_WINS'
+      }
+    })
     const toBeBrodcasted : messageSentByServer = {
       type: GameStatus.GAME_ENDED,
         payload: {

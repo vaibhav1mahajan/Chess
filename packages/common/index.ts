@@ -87,6 +87,11 @@ export type messageSentByServer = {
         gameId: string,
         result:GameResult,
     } & {}
+} | {
+    type: GameStatus.RESIGN,
+    payload:{
+        
+    }
 }
 
 
