@@ -4,7 +4,7 @@ let errorSound: HTMLAudioElement | null = null;
 
 export const initSounds = () => {
   myMoveSound = new Audio('/sounds/my-move.mp3');
-  opponentMoveSound = new Audio('/sounds/opponent-move.mp3');
+  opponentMoveSound = new Audio('/sounds/opponene-move.mp3');
   errorSound = new Audio('/sounds/error.mp3');
 };
 
