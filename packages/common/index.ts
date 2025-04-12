@@ -64,8 +64,14 @@ export type message = {
     payload:{
         gameId:string
     }
+} | {
+    type: GameStatus.REMOVE_IS_PENDING,
+    payload:{
+        gameId:string,
+        
+    }
 }
-
+ 
 
 export enum GameResult {
     DRAW = 'draw',

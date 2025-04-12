@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { socketManager, User } from "./User";
 import { GameStatus, timerValue, type message } from "@repo/common";
 import { Game } from "./Game";
-import redis from "./redisClient";
+// import redis from "./redisClient";
 let ID = 1;
 
 export class GameManager {
@@ -101,11 +101,17 @@ export class GameManager {
     } else if(message.type===GameStatus.MOVE) {
             const {gameId , move} = message.payload;
             const game = this.games.find((game)=> game.gameId === gameId);
-            if (game) {
-              redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
-              game.makeMove(user, move);
-              if (game.gameResult) {
-                await game.flushMovesToDB();
+            // if (game) {
+            //   redis.rpush(`game:${gameId}:moves`, JSON.stringify(move));
+            //   game.makeMove(user, move);
+            //   if (game.gameResult) {
+            //     await game.flushMovesToDB();
+            //     this.removeGame(gameId);
+            //   }
+            // }
+            if(game){
+              game.makeMove(user,move);
+              if(game.gameResult){
                 this.removeGame(gameId);
               }
             }
@@ -127,7 +133,17 @@ export class GameManager {
           game.resign(user);
           this.removeGame(gameId);
         }
+    } else if(message.type === GameStatus.REMOVE_IS_PENDING){
+      const game = this.games.find((game) => game.gameId === message.payload.gameId)
+      if(!game) {
+        return;
+      }
+      if(this._pendingGameId[game.timerValue] === user.name){
+        delete this._pendingGameId[game.timerValue];
+        return;
+      }
+
     }
     });
-  }
+  } 
 }

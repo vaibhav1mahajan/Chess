@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@repo/db";
 import { socketManager, User } from "./User";
 import { PauseableTimeout } from "./PauseableTimeout";
-import redis from "./redisClient";
+// import redis from "./redisClient";
 
 export class Game {
   gameId: string;
@@ -177,7 +177,6 @@ export class Game {
         })
       );
     }
-    console.log("moved");
   }
 
   public resign(user: User) {
@@ -241,25 +240,25 @@ export class Game {
       })
     );
   }
-  async flushMovesToDB() {
-    const moves = await redis.lrange(`game:${this.gameId}:moves`, 0, -1);
-    if (moves.length === 0) return;
+  // async flushMovesToDB() {
+  //   const moves = await redis.lrange(`game:${this.gameId}:moves`, 0, -1);
+  //   if (moves.length === 0) return;
 
-    try {
-      for (const move of moves) {
-        await prisma.move.create({
-          data: {
-            gameId: this.gameId,
-            move: move,
-            moveNumber: this.board.moveNumber(),
-            timeTaken: 1, // assuming a stringified object
-          },
-        });
-      }
-      console.log(`✅ Flushed ${moves.length} moves to DB`);
-      await redis.del(`game:${this.gameId}:moves`);
-    } catch (err) {
-      console.error("❌ Failed to flush moves:", err);
-    }
-  }
+  //   try {
+  //     for (const move of moves) {
+  //       await prisma.move.create({
+  //         data: {
+  //           gameId: this.gameId,
+  //           move: move,
+  //           moveNumber: this.board.moveNumber(),
+  //           timeTaken: 1, // assuming a stringified object
+  //         },
+  //       });
+  //     }
+  //     console.log(`✅ Flushed ${moves.length} moves to DB`);
+  //     await redis.del(`game:${this.gameId}:moves`);
+  //   } catch (err) {
+  //     console.error("❌ Failed to flush moves:", err);
+  //   }
+  // }
 }

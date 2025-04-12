@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Dispatch, SetStateAction, useState } from 'react'
 const ChessBoard = ({gameId ,colour , setColour , whitePlayerTime , blackPlayerTime , chess ,board , setBoard ,socket}:{
   colour: string,
-  setColour:Dispatch<SetStateAction<string>>,
+  setColour:Dispatch<SetStateAction<"w" | "b">>,
   whitePlayerTime:number,
   blackPlayerTime:number,
   chess:Chess,
@@ -28,7 +28,7 @@ gameId : string
     
     
   return (
-    <div className='mt-10'>
+    <div className=''>
       {(colour==='b' || colour==='black' ? board.slice().reverse() : board).map((row, i) => {
         i = colour==='b' || colour==='black' ? i+1 : 8-i;
         return (
