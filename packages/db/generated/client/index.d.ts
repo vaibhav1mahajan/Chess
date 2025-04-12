@@ -4802,10 +4802,10 @@ export namespace Prisma {
 
   export type GameWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    gameId?: string
     AND?: GameWhereInput | GameWhereInput[]
     OR?: GameWhereInput[]
     NOT?: GameWhereInput | GameWhereInput[]
-    gameId?: StringFilter<"Game"> | string
     whitePlayerId?: StringFilter<"Game"> | string
     blackPlayerId?: StringFilter<"Game"> | string
     status?: EnumGameStatusFilter<"Game"> | $Enums.GameStatus
@@ -4816,7 +4816,7 @@ export namespace Prisma {
     whitePlayer?: XOR<UserScalarRelationFilter, UserWhereInput>
     blackPlayer?: XOR<UserScalarRelationFilter, UserWhereInput>
     moves?: MoveListRelationFilter
-  }, "id">
+  }, "id" | "gameId">
 
   export type GameOrderByWithAggregationInput = {
     id?: SortOrder

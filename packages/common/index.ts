@@ -35,23 +35,67 @@ export enum timerValue {
 // if player doesn't make move in 5 minutes, he will lose
 export const TIMEOUT = 1000*60*5; // 5 minutes
 
-
-export type message = {
-    type: GameStatus.INIT_GAME,
+export type messageSentByServer = {
+    type:GameStatus.INIT_GAME,
     payload:{
-        timerValue: timerValue;
+          gameId:string;
+          whitePlayer: string;
+          blackPlayer: string,
+          timerValue: timerValue,
+          currentFen: string,
+          move: [],
+    }
+} | {
+    type: GameStatus.GAME_ADDED,
+    payload: {
+        gameId:string
     }
 } | {
     type:GameStatus.GAME_ALERT,
     payload:{
-        message: string;
-    }
-} | {
-    type:GameStatus.GAME_ADDED,
-    payload:{
         message:string
     }
 } | {
+    type: GameStatus.RESTORE_GAME,
+            payload: {
+              gameId: string,
+              whitePlayer: string
+              blackPlayer:string,
+              currentFen: string,
+              color:string,
+              remainingTime: {
+                player1: number | undefined,
+                player2: number | undefined,
+              },
+              moves: []
+            },
+} | {
+    type: GameStatus.MOVE,
+        payload: {
+          move :{
+            from: string;
+            to: string;
+          } ,
+          remaingTime: {
+            player1: number | undefined,
+            player2: number | undefined,
+          },
+        },
+} | {
+    type: GameStatus.GAME_ENDED,
+    payload: {
+        gameId: string,
+        result:GameResult,
+    } & {}
+}
+
+
+export type messageSentByClient = {
+    type: GameStatus.INIT_GAME,
+    payload:{
+        timerValue: timerValue;
+    }
+} |  {
     type:GameStatus.MOVE,
     payload:{
         move: {
@@ -70,6 +114,12 @@ export type message = {
     payload:{
         gameId:string,
         
+    }
+} | {
+    type:GameStatus.RESTORE_GAME,
+    payload:{
+        gameId:string,
+        username:string
     }
 }
  

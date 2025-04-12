@@ -116,7 +116,7 @@ const ChessBoard = ({
                         setFrom(null);
                         setTo(null);
                       } catch (error) {
-                        console.error("Invalid move", error);
+                        console.log("Invalid move", error);
                       }
                     }
                   }}
@@ -159,7 +159,7 @@ const ChessBoard = ({
                       try {
                         chess.move({ from: from, to: newTo });
                       } catch (error) {
-                        console.error("Invalid move", error);
+                        console.log("Invalid move", error);
                       }
                       console.log(newTo);
                       socket.send(

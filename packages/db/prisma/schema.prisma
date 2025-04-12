@@ -23,7 +23,7 @@ model User {
 
 model Game {
   id            String    @id  @default(uuid())
-  gameId        String
+  gameId        String    @unique
   whitePlayerId String
   blackPlayerId String
   whitePlayer   User       @relation("GamesAsWhite", fields: [whitePlayerId], references: [username])
