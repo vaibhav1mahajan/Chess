@@ -2,15 +2,12 @@
 import { GameStatus } from "@repo/common";
 import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { initSounds, playErrorSound, playMyMoveSound } from '@/lib/sound';
 
 const ChessBoard = ({
   gameId,
   colour,
-  setColour,
-  whitePlayerTime,
-  blackPlayerTime,
   chess,
   board,
   setBoard,
@@ -18,9 +15,6 @@ const ChessBoard = ({
   gameStarted
 }: {
   colour: string;
-  setColour: Dispatch<SetStateAction<"w" | "b">>;
-  whitePlayerTime: number;
-  blackPlayerTime: number;
   chess: Chess;
   board: ({
     square: Square;
@@ -36,30 +30,30 @@ const ChessBoard = ({
   const [to, setTo] = useState<string | null>(null);
   const [moves, setMoves] = useState<Move[] | []>([]);
 
-  const [isPremoved, setIsPremoved] = useState(false);
-  const [premoveFrom, setIspremoveFrom] = useState<string | null>(null);
-  const [premoveTo, setIspremoveTo] = useState<string | null>(null);
+  // const [isPremoved, setIsPremoved] = useState(false);
+  // const [premoveFrom, setIspremoveFrom] = useState<string | null>(null);
+  // const [premoveTo, setIspremoveTo] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isPremoved || !premoveFrom || !premoveTo) return;
-    try {
-      chess.move({ from: premoveFrom, to: premoveTo });
-      socket.send(
-        JSON.stringify({
-          type: GameStatus.MOVE,
-          payload: {
-            gameId,
-            move: { from: premoveFrom, to: premoveTo },
-          },
-        })
-      );
-      setBoard(chess.board());
-      setFrom(null);
-      setTo(null);
-    } catch (error) {
-      console.log('Invalid move', error);
-    }
-  }, [board]);
+  // useEffect(() => {
+  //   if (!isPremoved || !premoveFrom || !premoveTo) return;
+  //   try {
+  //     chess.move({ from: premoveFrom, to: premoveTo });
+  //     socket.send(
+  //       JSON.stringify({
+  //         type: GameStatus.MOVE,
+  //         payload: {
+  //           gameId,
+  //           move: { from: premoveFrom, to: premoveTo },
+  //         },
+  //       })
+  //     );
+  //     setBoard(chess.board());
+  //     setFrom(null);
+  //     setTo(null);
+  //   } catch (error) {
+  //     console.log('Invalid move', error);
+  //   }
+  // }, [board]);
 
   const setFromAndPlaySound = (i: number, j: number) => {
     const newFrom = `${String.fromCharCode(j + 97)}${i}`;

@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import { useRouter } from 'next/navigation'
 
 
-const page = () => {
+const Page = () => {
    const router = useRouter();
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -20,7 +20,7 @@ const page = () => {
       router.push('/game');
     }
   },[])
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
+  const handleSubmit = async () =>{
       try {
         const response  = await axios.post('http://localhost:3030/api/auth/signup', { username, password })
         toast.success('sign up success')
@@ -55,6 +55,6 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
 
 

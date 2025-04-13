@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner"
 
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -110,4 +110,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

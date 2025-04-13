@@ -3,8 +3,8 @@
 
 import ChessBoard from "@/components/ChessBoard"
 import { useSocket } from "@/hooks/useSocket"
-import { use, useEffect, useRef, useState } from "react";
-import { GameResult, GameStatus, messageSentByClient, messageSentByServer, timerValue } from '@repo/common'
+import { useEffect, useRef, useState } from "react";
+import { GameResult, GameStatus, messageSentByServer, timerValue } from '@repo/common'
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 import { Chess, Move } from "chess.js";
@@ -19,10 +19,10 @@ const Page = () => {
 
   const [chess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
-  const [fen, setFen] = useState(chess.fen());
+  const [, setFen] = useState(chess.fen());
 
   const [startingTime, setStartingTime] = useState<timerValue>(timerValue.TEN_MIN);
-  const [username, setUsername] = useState<string | undefined>(Cookies.get('username'));
+  const [username,] = useState<string | undefined>(Cookies.get('username'));
   const [colour, setColour] = useState<'w' | 'b'>('w');
   const [moves, setMoves] = useState<Move[]>([]);
   const [result, setResult] = useState<GameResult | null>(null);
@@ -40,7 +40,7 @@ const Page = () => {
 
   const [whitePlayerTime, setWhitePlayerTime] = useState(timeInSeconds);
   const [blackPlayerTime, setBlackPlayerTime] = useState(timeInSeconds);
-  const [currentTurn, setCurrentTurn] = useState<'w' | 'b'>('w');
+  const [, setCurrentTurn] = useState<'w' | 'b'>('w');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     if(result){
@@ -198,9 +198,6 @@ useEffect(() => {
             board={board}
             setBoard={setBoard}
             colour={colour}
-            setColour={setColour}
-            whitePlayerTime={whitePlayerTime}
-            blackPlayerTime={blackPlayerTime}
             gameStarted={gameStarted}
           />
 

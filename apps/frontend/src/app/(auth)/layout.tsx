@@ -1,6 +1,6 @@
 
 
-const layout = ({children}:{
+const Layout = ({children}:{
     children:React.ReactNode
 }) => {
   return (
@@ -36,4 +36,4 @@ const layout = ({children}:{
   )
 }
 
-export default layout
+export default Layout

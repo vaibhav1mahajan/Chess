@@ -6,15 +6,10 @@ import { ModeToggle } from '../mode-toggle'
 import Link from 'next/link'
 // import { Bars3Icon, XMarkIcon } from '@heroicons/react-icons/solid'
 
-const navigation = [
-  { name: '', href: '#' },
-  { name: '', href: '#' },
-  { name: '', href: '#' },
-  { name: '', href: '#' },
-]
+
 
 export default function Example() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [, setMobileMenuOpen] = useState(false)
 
   return (
     <div className="bg-white dark:bg-black min-h-screen overflow-y-hidden ">
@@ -62,7 +57,7 @@ export default function Example() {
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
             <div className="dark:text-gray-100 relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 dark:hover:ring-gray-100 hover:ring-gray-900/20 dark:ring-gray-100/20" >
-              Announcing fully functional chess website.{' '}
+              Announcing fully functional chess website.
              
             </div>
           </div>
@@ -71,7 +66,7 @@ export default function Example() {
               Platform for improving chess
             </h1>
             <p className="dark:text-gray-300 mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
-              We're revolutionizing the way chess is played by creating a platform that connects players, offers insights, and helps them improve their skills.
+              We are revolutionizing the way chess is played by creating a platform that connects players, offers insights, and helps them improve their skills.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
