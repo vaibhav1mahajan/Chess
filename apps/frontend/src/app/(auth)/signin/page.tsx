@@ -2,7 +2,7 @@
 import axios from "axios";
 import { LockOpen, User2Icon } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"
@@ -12,6 +12,14 @@ const page = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(()=>{
+    const username = Cookies.get('username');
+    const jwt = Cookies.get('jwt')
+    if(username && jwt){
+      router.push('/game');
+    }
+  },[])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

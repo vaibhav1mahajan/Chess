@@ -3,7 +3,7 @@
 
 import ChessBoard from "@/components/ChessBoard"
 import { useSocket } from "@/hooks/useSocket"
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { GameResult, GameStatus, messageSentByClient, messageSentByServer, timerValue } from '@repo/common'
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
@@ -30,6 +30,7 @@ const Page = () => {
   const [gameStarted, setIsGameStarted] = useState(false);
   const [opponentName, setOpponentName] = useState('Guest');
   const [waitingForOtherPlayer, setWaitingForOtherPlayer] = useState(false);
+  const [disconnectingMessage,setDisconnectMessage] = useState<string | null>(null)
 
   const timeInSeconds = {
     [timerValue.TEN_MIN]: 600,
@@ -88,6 +89,24 @@ const Page = () => {
     }
   }, [socket, gameIdFromUrl]);
 
+  // Assuming you have `socket` and `gameId`
+useEffect(() => {
+  const handleBeforeUnload = () => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: GameStatus.DISCONNECTING, payload:{
+        gameId  
+      } }));
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [socket, gameId]);
+
+
   useEffect(() => {
     if (!socket) return;
 
@@ -122,6 +141,13 @@ const Page = () => {
           setMoves(prev => [...prev, move as Move]);
           setCurrentTurn(chess.turn());
           break;
+        }
+        case GameStatus.DISCONNECTING: {
+            const {message : msg} = message.payload
+            console.log('control is not reching here , chat-gpt help')
+            setDisconnectMessage(msg);
+            console.log(disconnectingMessage)
+            break;
         }
         case GameStatus.GAME_ENDED:
           setResult(message.payload.result);
@@ -234,6 +260,9 @@ const Page = () => {
                 Resign
               </Button>
             </>
+          )}
+          {disconnectingMessage && (
+            <div>{disconnectingMessage} </div>
           )}
 
           {result && (

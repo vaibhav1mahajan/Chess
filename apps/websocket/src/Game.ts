@@ -235,7 +235,8 @@ export class Game {
         gameId:this.gameId
       },
       data:{
-        result:result === GameResult.DRAW ? 'DRAW' : result === GameResult.BLACK_WON ? 'BLACK_WINS' : 'WHITE_WINS'
+        result:result === GameResult.DRAW ? 'DRAW' : result === GameResult.BLACK_WON ? 'BLACK_WINS' : 'WHITE_WINS',
+        status:'COMPLETED'
       }
     })
     const toBeBrodcasted : messageSentByServer = {

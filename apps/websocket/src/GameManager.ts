@@ -123,6 +123,20 @@ export class GameManager {
           game.resign(user);
           this.removeGame(gameId);
         }
+      } else if(message.type === GameStatus.DISCONNECTING){
+        const gameId = message.payload.gameId
+        console.log(message.payload)
+        console.log(gameId);
+          const game = this.games.find( (game) => game.gameId === gameId)
+          if(!game) return ;
+          console.log('control is reaching here')
+          const toBeBrodcasted : messageSentByServer = {
+              type:GameStatus.DISCONNECTING,
+              payload:{
+                message: `${user.name} has disconnected`
+              }
+          }
+          socketManager.broadcast(game.gameId,JSON.stringify(toBeBrodcasted))
       } else if (message.type === GameStatus.REMOVE_IS_PENDING) { // GameStatus.removeispending
         const game = this.games.find(
           (game) => game.gameId === message.payload.gameId
