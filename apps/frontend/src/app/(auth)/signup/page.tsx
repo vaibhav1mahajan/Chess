@@ -1,25 +1,16 @@
 'use client'
 import { LockOpen, User2Icon } from 'lucide-react'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
-import Cookies from "js-cookie";
-import { useRouter } from 'next/navigation'
+
 
 
 const Page = () => {
-   const router = useRouter();
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
-  useEffect(()=>{
-    const username = Cookies.get('username');
-    const jwt = Cookies.get('jwt')
-    if(username && jwt){
-      router.push('/game');
-    }
-  },[])
   const handleSubmit = async () =>{
       try {
         const response  = await axios.post('http://localhost:3030/api/auth/signup', { username, password })

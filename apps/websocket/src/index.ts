@@ -21,6 +21,7 @@ const wss = new WebSocketServer({ port: PORT });
 
 wss.on('connection',async (ws, req: IncomingMessage) => {
   const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
+  console.log('control reaching here')
   const token = cookies.jwt ; // adjust if your cookie has a different name
   if (!token) {
     ws.close(4001, 'Unauthorized: No token provided');

@@ -23,7 +23,6 @@ export enum GameStatus {
     TIME_UP = 'time_up',
     REMOVE_IS_PENDING = 'remove_is_pending_user',
     RESTORE_GAME='restore_game',
-    DISCONNECTING = 'disconnecting'
 }
 
 export enum timerValue {
@@ -93,12 +92,7 @@ export type messageSentByServer = {
     payload:{
         
     }
-} | {
-    type:GameStatus.DISCONNECTING,
-    payload:{
-        message:string
-    }
-}
+} 
 
 
 export type messageSentByClient = {
@@ -132,12 +126,7 @@ export type messageSentByClient = {
         gameId:string,
         username:string
     }
-} | {
-    type:GameStatus.DISCONNECTING,
-    payload:{
-        gameId:string
-    }
-}
+} 
  
 
 export enum GameResult {

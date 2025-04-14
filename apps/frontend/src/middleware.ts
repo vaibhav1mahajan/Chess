@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const JWT_SECRET = new TextEncoder().encode('sitaram1') // same as what your backend uses
+const JWT_SECRET = new TextEncoder().encode('local') // same as what your backend uses
 
 async function verifyJWT(token: string) {
   try {

@@ -30,7 +30,6 @@ const Page = () => {
   const [gameStarted, setIsGameStarted] = useState(false);
   const [opponentName, setOpponentName] = useState('Guest');
   const [waitingForOtherPlayer, setWaitingForOtherPlayer] = useState(false);
-  const [disconnectingMessage,setDisconnectMessage] = useState<string | null>(null)
 
   const timeInSeconds = {
     [timerValue.TEN_MIN]: 600,
@@ -90,21 +89,6 @@ const Page = () => {
   }, [socket, gameIdFromUrl]);
 
   // Assuming you have `socket` and `gameId`
-useEffect(() => {
-  const handleBeforeUnload = () => {
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: GameStatus.DISCONNECTING, payload:{
-        gameId  
-      } }));
-    }
-  };
-
-  window.addEventListener('beforeunload', handleBeforeUnload);
-
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-  };
-}, [socket, gameId]);
 
 
   useEffect(() => {
@@ -141,13 +125,6 @@ useEffect(() => {
           setMoves(prev => [...prev, move as Move]);
           setCurrentTurn(chess.turn());
           break;
-        }
-        case GameStatus.DISCONNECTING: {
-            const {message : msg} = message.payload
-            console.log('control is not reching here , chat-gpt help')
-            setDisconnectMessage(msg);
-            console.log(disconnectingMessage)
-            break;
         }
         case GameStatus.GAME_ENDED:
           setResult(message.payload.result);
@@ -258,9 +235,7 @@ useEffect(() => {
               </Button>
             </>
           )}
-          {disconnectingMessage && (
-            <div>{disconnectingMessage} </div>
-          )}
+          
 
           {result && (
             <div className="text-center text-xl font-semibold">

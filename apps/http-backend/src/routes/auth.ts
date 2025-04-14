@@ -61,6 +61,7 @@ authRouter.post('/signup', async (req:Request,res:Response) => {
 })
 
 authRouter.post('/signin',async (req:Request,res:Response)=>{
+    console.log('hello')
     const body = req.body;
     const response = signinSchema.safeParse(body);
     if(!response.success){
@@ -93,6 +94,7 @@ authRouter.post('/signin',async (req:Request,res:Response)=>{
         }
         console.log(matched);
         const token = assignToken(user, res);
+        console.log(token)
         res.status(201).json({
             msg:"Signin successfully",
             userId:user.id,
