@@ -14,6 +14,7 @@ export class Game {
   timerValue: timerValue = timerValue.TEN_MIN;
   timerPlayer1: PauseableTimeout | null = null;
   timerPlayer2: PauseableTimeout | null = null;
+  timeout: NodeJS.Timeout;
   gameResult: GameResult | null = null;
   moves: Move[] = []
 
@@ -27,6 +28,11 @@ export class Game {
     this.usernameOfPlayer2 = usernameOfPlayer2;
     this.timerValue = timerValue;
     this.board = new Chess();
+    this.timeout = setTimeout(()=>{
+      this.gameEnded(GameResult.DRAW,{
+        message:'White Player forefieted time'
+      })
+    },1000*60)
   }
 
   public async gameStarted(usernameOfPlayer2: string) {
@@ -127,6 +133,12 @@ export class Game {
       }
       this.timerPlayer1?.pause();
       this.timerPlayer2?.resume();
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(()=>{
+        this.gameEnded(GameResult.WHITE_WON,{
+          message:'Black has forefieted time'
+        })
+      },1000*60*3)
     }
 
     if (this.board.turn() === "b" && user.name === this.usernameOfPlayer2) {
@@ -149,6 +161,12 @@ export class Game {
       }
       this.timerPlayer2?.pause();
       this.timerPlayer1?.resume();
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(()=>{
+        this.gameEnded(GameResult.BLACK_WON,{
+          message:'White has forefieted time'
+        })
+      },1000*60*3)
     }
     await redis.rpush(
       `game:${this.gameId}:moves`,

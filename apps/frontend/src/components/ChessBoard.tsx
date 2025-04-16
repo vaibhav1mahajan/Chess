@@ -1,5 +1,5 @@
 "use client";
-import { GameStatus } from "@repo/common";
+import { GameResult, GameStatus } from "@repo/common";
 import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -13,8 +13,10 @@ const ChessBoard = ({
   board,
   setBoard,
   socket,
-  gameStarted
+  gameStarted,
+  result
 }: {
+  result: GameResult | null
   setMoves:Dispatch<SetStateAction<Move[]>>
   colour: string;
   chess: Chess;
@@ -82,7 +84,7 @@ const ChessBoard = ({
               key={`${i}-${j}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
-                if (!gameStarted) return;
+                if (!gameStarted || result) return;
                 const fromSquare = e.dataTransfer.getData("fromSquare");
                 if (fromSquare && squareName) {
                   try {
@@ -101,7 +103,7 @@ const ChessBoard = ({
                 }
               }}
               onClick={() => {
-                if (!gameStarted || colour.charAt(0) !== chess.turn().charAt(0)) return;
+                if (!gameStarted || colour.charAt(0) !== chess.turn().charAt(0) || result) return;
 
                 if (square && square.color === chess.turn() && from) {
                   setFromAndPlaySound(rowIndex, colIndex);
@@ -138,6 +140,7 @@ const ChessBoard = ({
                 <Image
                   draggable
                   onDragStart={(e) => {
+                    if (!gameStarted || colour.charAt(0) !== chess.turn().charAt(0) || result) return;
                     e.dataTransfer.setData('fromSquare', squareName);
                     setFrom(squareName);
                     const possibleMoves = chess.moves({ square: squareName as Square, verbose: true });

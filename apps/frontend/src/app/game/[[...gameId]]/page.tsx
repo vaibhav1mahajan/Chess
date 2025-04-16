@@ -175,7 +175,6 @@ const Page = () => {
           <PlayerCard name={opponentName} time={colour === 'w' ? blackPlayerTime : whitePlayerTime} />
 
           <ChessBoard
-            setMoves={setMoves}
             gameId={gameId}
             socket={socket}
             chess={chess}
@@ -183,6 +182,8 @@ const Page = () => {
             setBoard={setBoard}
             colour={colour}
             gameStarted={gameStarted}
+            setMoves={setMoves}
+            result={result}
           />
 
           <PlayerCard name={username || 'You'} time={colour === 'w' ? whitePlayerTime : blackPlayerTime} />
