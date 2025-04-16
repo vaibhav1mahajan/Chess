@@ -15,6 +15,8 @@ Play real-time chess with friends, track your moves, enjoy immersive sounds, and
 - ✨ **Possible Moves Highlighted** – Visual cues show legal moves on click.
 - ⚡ **Redis-Powered Sync** – Super-fast game state updates with Redis.
 - 🏳️ **Resign Button** – Gracefully accept defeat.
+- ⌛ **Auto-Resign on Inactivity** – Forfeit automatically after a set time of no moves.
+- 📊 **Moves Table** – Detailed breakdown of game progress.
 - 🐳 **Docker-Compose Ready** – Simple one-command development setup.
 
 ---
@@ -33,11 +35,13 @@ Play real-time chess with friends, track your moves, enjoy immersive sounds, and
 
 ## 🔮 Coming Soon
 
-- ⌛ **Auto-Resign on Inactivity** – Forfeit automatically after a set time of no moves.
 - ♻️ **New Game Option** – Rematch or start fresh after the game ends.
 - 🤖 **Bot Integration** – Play against Bot when no human is around.
-- 📊 **Moves Table** – Detailed breakdown of game progress.
 - 🕰️ **Game History** – See past games and reflect on your journey.
+- 👀 **Spectator Mode** – Watch live games in progress.
+- 🕰️ **Game History** – View all previous matches from a separate history page.
+- 💎 **Modern UI/UX** – Sleek and responsive interface for a seamless experience.
+- 🚀 **Deployment** – Ready for production launch.
 
 ---
 
