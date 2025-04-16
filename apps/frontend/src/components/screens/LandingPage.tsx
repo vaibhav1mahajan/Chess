@@ -63,7 +63,7 @@ export default function Example() {
           </div>
           <div className="text-center">
             <h1 className="dark:text-gray-200 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">
-              Platform for improving chess
+              Platform for improving chess 
             </h1>
             <p className="dark:text-gray-300 mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
               We are revolutionizing the way chess is played by creating a platform that connects players, offers insights, and helps them improve their skills.

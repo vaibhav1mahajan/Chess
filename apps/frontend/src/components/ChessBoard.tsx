@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { initSounds, playErrorSound, playMyMoveSound } from '@/lib/sound';
 
 const ChessBoard = ({
+  setMoves,
   gameId,
   colour,
   chess,
@@ -14,6 +15,7 @@ const ChessBoard = ({
   socket,
   gameStarted
 }: {
+  setMoves:Dispatch<SetStateAction<Move[]>>
   colour: string;
   chess: Chess;
   board: ({
@@ -28,7 +30,7 @@ const ChessBoard = ({
 }) => {
   const [from, setFrom] = useState<string | null>(null);
   const [to, setTo] = useState<string | null>(null);
-  const [moves, setMoves] = useState<Move[] | []>([]);
+  const [possiblemoves, setPossibleMoves] = useState<Move[] | []>([]);
 
   // const [isPremoved, setIsPremoved] = useState(false);
   // const [premoveFrom, setIspremoveFrom] = useState<string | null>(null);
@@ -59,7 +61,7 @@ const ChessBoard = ({
     const newFrom = `${String.fromCharCode(j + 97)}${i}`;
     setFrom(newFrom);
     const moves = chess.moves({ square: newFrom as Square, verbose: true });
-    setMoves(moves);
+    setPossibleMoves(moves);
     initSounds();
     playMyMoveSound();
     setTo(null);
@@ -73,7 +75,7 @@ const ChessBoard = ({
           const colIndex = colour === "b" ? 7 - (j % 8) : j % 8;
           const squareName = `${String.fromCharCode(colIndex + 97)}${rowIndex}`;
           const isDark = (rowIndex + colIndex) % 2 !== 0;
-          const canMove = checkPossibleMove(moves, squareName as Square, from);
+          const canMove = checkPossibleMove(possiblemoves, squareName as Square, from);
 
           return (
             <div
@@ -85,6 +87,7 @@ const ChessBoard = ({
                 if (fromSquare && squareName) {
                   try {
                     chess.move({ from: fromSquare, to: squareName });
+                    setMoves(prev => [...prev, { from: fromSquare, to: squareName }as Move])
                     socket.send(JSON.stringify({
                       type: GameStatus.MOVE,
                       payload: { gameId, move: { from: fromSquare, to: squareName } }
@@ -109,6 +112,7 @@ const ChessBoard = ({
                   setTo(newTo);
                   try {
                     chess.move({ from: from, to: newTo });
+                    setMoves(prev => [...prev, { from: from, to: newTo }as Move])
                   } catch (error) {
                     initSounds();
                     playErrorSound();
@@ -137,7 +141,7 @@ const ChessBoard = ({
                     e.dataTransfer.setData('fromSquare', squareName);
                     setFrom(squareName);
                     const possibleMoves = chess.moves({ square: squareName as Square, verbose: true });
-                    setMoves(possibleMoves);
+                    setPossibleMoves(possibleMoves);
                   }}
                   src={`/Chess_pieces/${square.color.toUpperCase()}${square?.type.toUpperCase()}.png`}
                   alt={`${square?.type}`}

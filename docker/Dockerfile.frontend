@@ -5,13 +5,13 @@ WORKDIR /app
 COPY ./package.json ./package.json
 COPY ./bun.lock ./bun.lock
 COPY ./turbo.json ./turbo.json
+RUN bun install
 COPY ./packages ./packages
 
 COPY ./apps/frontend/package.json ./apps/frontend/package.json
 RUN bun install
 
 
-COPY ./apps/frontend ./apps/frontend
 
 
 # RUN bun run build

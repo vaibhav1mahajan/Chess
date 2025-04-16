@@ -7,9 +7,9 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "docker:http-backend:start":"bun run turbo db:migrate && bun run turbo db:generate && cd apps/http-backend && bun run start",
-    "docker:websocket:start":"bun run turbo db:migrate && bun run turbo db:generate && cd apps/websocket && bun run start",
-    "docker:frontend:start":"cd apps/frontend && bun run start"
+    "docker:http-backend:start":"bun run turbo db:migrate && bun run turbo db:generate && cd apps/http-backend && bun --watch src/index.ts",
+    "docker:websocket:start":"bun run turbo db:migrate && bun run turbo db:generate && cd apps/websocket && bun --watch src/index.ts",
+    "docker:frontend:start":"cd apps/frontend && bun run dev"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

@@ -10,6 +10,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:mysecretpassword@postgres:5432/postgres
       - JWT_SECRET=local
+    volumes:
+      - ./apps/http-backend:/app/apps/http-backend
     depends_on:
       - postgres
   websocket:
@@ -21,6 +23,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:mysecretpassword@postgres:5432/postgres
       - JWT_SECRET=local
+    volumes:
+      - ./apps/websocket:/app/apps/websocket
     depends_on:
       - postgres
       - redis
@@ -33,7 +37,9 @@ services:
       - "3000:3000"
     environment:
       - JWT_SECRET=local
-    
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - ./apps/frontend/node_modules
   postgres:
     image: postgres
     environment:

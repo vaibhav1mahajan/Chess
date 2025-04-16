@@ -67,7 +67,7 @@ export type messageSentByServer = {
                 player1: number | undefined,
                 player2: number | undefined,
               },
-              moves: []
+              moves: any[] // it's a move array , i don't want to add chess.js pacakge in common
             },
 } | {
     type: GameStatus.MOVE,

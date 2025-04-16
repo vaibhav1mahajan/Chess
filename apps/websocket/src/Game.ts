@@ -15,7 +15,7 @@ export class Game {
   timerPlayer1: PauseableTimeout | null = null;
   timerPlayer2: PauseableTimeout | null = null;
   gameResult: GameResult | null = null;
-  moves: [] = []
+  moves: Move[] = []
 
   public constructor(
     usernameOfPlayer1: string,
@@ -101,6 +101,7 @@ export class Game {
       }
       try {
         this.board.move(move);
+        this.moves.push(move as Move)
       } catch (error) {
         const toBeBrodcasted : messageSentByServer = {
           type: GameStatus.GAME_ALERT,
@@ -135,6 +136,7 @@ export class Game {
       }
       try {
         this.board.move(move);
+        this.moves.push(move as Move)
       } catch (error) {
         const toBeBrodcasted : messageSentByServer = {
           type: GameStatus.GAME_ALERT,

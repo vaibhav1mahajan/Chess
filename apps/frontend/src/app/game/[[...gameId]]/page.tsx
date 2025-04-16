@@ -1,34 +1,34 @@
-
 'use client'
 
-import ChessBoard from "@/components/ChessBoard"
-import { useSocket } from "@/hooks/useSocket"
+import ChessBoard from "@/components/ChessBoard";
+import { useSocket } from "@/hooks/useSocket";
 import { useEffect, useRef, useState } from "react";
-import { GameResult, GameStatus, messageSentByServer, timerValue } from '@repo/common'
+import { GameResult, GameStatus, messageSentByServer, timerValue } from "@repo/common";
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 import { Chess, Move } from "chess.js";
 import { useRouter, useSearchParams } from "next/navigation";
 import { initSounds, playOpponentMoveSound } from "@/lib/sound";
+import MovesTable from "@/components/MovesTable";
 
 const Page = () => {
   const socket = useSocket();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const gameIdFromUrl = searchParams.get('gameId');
+  const gameIdFromUrl = searchParams.get("gameId");
 
   const [chess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
   const [, setFen] = useState(chess.fen());
 
   const [startingTime, setStartingTime] = useState<timerValue>(timerValue.TEN_MIN);
-  const [username,] = useState<string | undefined>(Cookies.get('username'));
+  const [username] = useState<string | undefined>(Cookies.get("username"));
   const [colour, setColour] = useState<'w' | 'b'>('w');
   const [moves, setMoves] = useState<Move[]>([]);
   const [result, setResult] = useState<GameResult | null>(null);
-  const [gameId, setGameId] = useState('');
+  const [gameId, setGameId] = useState("");
   const [gameStarted, setIsGameStarted] = useState(false);
-  const [opponentName, setOpponentName] = useState('Guest');
+  const [opponentName, setOpponentName] = useState("Guest");
   const [waitingForOtherPlayer, setWaitingForOtherPlayer] = useState(false);
 
   const timeInSeconds = {
@@ -41,13 +41,15 @@ const Page = () => {
   const [blackPlayerTime, setBlackPlayerTime] = useState(timeInSeconds);
   const [, setCurrentTurn] = useState<'w' | 'b'>('w');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Timer logic for each move
   useEffect(() => {
-    if(result){
+    if (result) {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     if (!gameStarted || result) return;
 
-    const turn = chess.turn(); // 'w' or 'b'
+    const turn = chess.turn();
     setCurrentTurn(turn);
 
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -63,47 +65,49 @@ const Page = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [moves, gameStarted, result,chess.turn()]); // ❌ removed chess here
+  }, [moves, gameStarted, result]);
 
+  // Format seconds to MM:SS
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
+    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
     return `${mins}:${secs}`;
   };
 
+  // Restore game state from server on reload
   useEffect(() => {
     if (!socket || !gameIdFromUrl) return;
 
     const restoreGame = () => {
       socket.send(JSON.stringify({
         type: GameStatus.RESTORE_GAME,
-        payload: { gameId: gameIdFromUrl, username }
+        payload: { gameId: gameIdFromUrl, username },
       }));
     };
 
     if (socket.readyState === WebSocket.OPEN) restoreGame();
     else {
-      socket.addEventListener('open', restoreGame);
-      return () => socket.removeEventListener('open', restoreGame);
+      socket.addEventListener("open", restoreGame);
+      return () => socket.removeEventListener("open", restoreGame);
     }
   }, [socket, gameIdFromUrl]);
 
-  // Assuming you have `socket` and `gameId`
-
-
+  // Socket message handler
   useEffect(() => {
     if (!socket) return;
 
     socket.onmessage = (event) => {
       const message: messageSentByServer = JSON.parse(event.data);
+
       switch (message.type) {
         case GameStatus.GAME_ADDED:
           setWaitingForOtherPlayer(true);
           break;
+
         case GameStatus.INIT_GAME: {
           const { gameId, whitePlayer, blackPlayer, timerValue, move } = message.payload;
           const isWhite = whitePlayer === username;
-          setColour(isWhite ? 'w' : 'b');
+          setColour(isWhite ? "w" : "b");
           setOpponentName(isWhite ? blackPlayer : whitePlayer);
           setGameId(gameId);
           setMoves(move ?? []);
@@ -115,6 +119,7 @@ const Page = () => {
           router.replace(`/game?gameId=${gameId}`);
           break;
         }
+
         case GameStatus.MOVE: {
           const { move } = message.payload;
           chess.move(move as Move);
@@ -126,14 +131,16 @@ const Page = () => {
           setCurrentTurn(chess.turn());
           break;
         }
+
         case GameStatus.GAME_ENDED:
           setResult(message.payload.result);
           if (intervalRef.current) clearInterval(intervalRef.current);
           break;
+
         case GameStatus.RESTORE_GAME: {
           const { gameId, whitePlayer, blackPlayer, color, currentFen, remainingTime, moves } = message.payload;
-          const isWhite = color === 'white';
-          setColour(isWhite ? 'w' : 'b');
+          const isWhite = color === "white";
+          setColour(isWhite ? "w" : "b");
           setOpponentName(isWhite ? blackPlayer : whitePlayer);
           setGameId(gameId);
           setMoves(moves ?? []);
@@ -150,6 +157,7 @@ const Page = () => {
     };
   }, [socket, username]);
 
+  // UI: Connecting fallback
   if (!socket) {
     return (
       <div className="flex justify-center items-center h-screen bg-zinc-900">
@@ -161,14 +169,13 @@ const Page = () => {
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-zinc-900 to-black text-white">
       <div className="container mx-auto h-full p-4 flex flex-col xl:flex-row gap-6">
-        {/* Left Section */}
+
+        {/* Left Section: Opponent Info + Chess Board + Your Info */}
         <div className="flex-1 flex flex-col justify-center items-center gap-6">
-          <div className="w-full max-w-sm bg-zinc-800 rounded-2xl shadow-lg p-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{opponentName}</h2>
-            <span className="text-2xl">⏳ {colour === 'w' ? formatTime(blackPlayerTime) : formatTime(whitePlayerTime)}</span>
-          </div>
+          <PlayerCard name={opponentName} time={colour === 'w' ? blackPlayerTime : whitePlayerTime} />
 
           <ChessBoard
+            setMoves={setMoves}
             gameId={gameId}
             socket={socket}
             chess={chess}
@@ -178,14 +185,12 @@ const Page = () => {
             gameStarted={gameStarted}
           />
 
-          <div className="w-full max-w-sm bg-zinc-800 rounded-2xl shadow-lg p-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{username}</h2>
-            <span className="text-2xl">⏳ {colour === 'w' ? formatTime(whitePlayerTime) : formatTime(blackPlayerTime)}</span>
-          </div>
+          <PlayerCard name={username || 'You'} time={colour === 'w' ? whitePlayerTime : blackPlayerTime} />
         </div>
 
-        {/* Right Section */}
+        {/* Right Section: Controls and Game Status */}
         <div className="w-full xl:w-96 flex flex-col justify-center items-center gap-6 bg-zinc-800 rounded-2xl shadow-2xl p-6">
+          <MovesTable moves={moves} />
           {!gameStarted && !waitingForOtherPlayer && (
             <>
               <div className="flex gap-4">
@@ -206,7 +211,7 @@ const Page = () => {
                 onClick={() => {
                   socket.send(JSON.stringify({
                     type: GameStatus.INIT_GAME,
-                    payload: { timerValue: startingTime }
+                    payload: { timerValue: startingTime },
                   }));
                 }}
               >
@@ -227,7 +232,7 @@ const Page = () => {
                 onClick={() => {
                   socket.send(JSON.stringify({
                     type: GameStatus.RESIGN,
-                    payload: { gameId }
+                    payload: { gameId },
                   }));
                 }}
               >
@@ -235,7 +240,6 @@ const Page = () => {
               </Button>
             </>
           )}
-          
 
           {result && (
             <div className="text-center text-xl font-semibold">
@@ -250,6 +254,20 @@ const Page = () => {
       </div>
     </div>
   );
-}
+};
+
+// Local component: Player Card UI
+const PlayerCard = ({ name, time }: { name: string; time: number }) => (
+  <div className="w-full max-w-sm bg-zinc-800 rounded-2xl shadow-lg p-4 flex items-center justify-between">
+    <h2 className="text-lg font-semibold">{name}</h2>
+    <span className="text-2xl">⏳ {formatLocalTime(time)}</span>
+  </div>
+);
+
+const formatLocalTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+};
 
 export default Page;
