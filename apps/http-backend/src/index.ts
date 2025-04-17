@@ -4,6 +4,7 @@ import {config} from 'dotenv';
 import cors from 'cors';
 // import routes
 import authRouter  from './routes/auth'
+import chessRouter from "./routes/chess";
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(cors({
 }));
 
 app.use('/api/auth', authRouter);
+app.use('/chess',chessRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

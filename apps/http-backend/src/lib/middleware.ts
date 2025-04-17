@@ -4,6 +4,7 @@ import jwt, { type JwtPayload } from 'jsonwebtoken'
 export function protectedRoute(req:Request,res:Response,next:NextFunction){
         try {
             const token = req.cookies.jwt;
+            const username = req.cookies.username;
             if(!token){
                 res.status(401).json({
                     msg:"Unauthorized:No token provided"
@@ -18,12 +19,14 @@ export function protectedRoute(req:Request,res:Response,next:NextFunction){
                 return ;
             }
             req.userId = (decoded as JwtPayload).id;
+            req.username = username;
             next();
         } catch (error) {
             console.log(error)
             res.status(500).json({
                 msg:"Internal server error"
             })
+            return;
         }
 }
 
